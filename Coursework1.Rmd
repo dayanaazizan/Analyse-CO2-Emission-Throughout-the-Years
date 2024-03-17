@@ -1,0 +1,141 @@
+---
+title: "MTH6139 Time Series"
+subtitle: |
+    Analyse CO2 Emission Throughout the Years
+    <br>Coursework 1
+author:
+- name: Dayana Batrisyia Binti Azizan(210926200)
+date: "16 March 2024"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+The purpose of this project is to analyse the long term patterns of CO2 emission throughout 1959s to 1997.
+Here, we will use some co2 after we run two packages, which are prophet and remote. 
+Why do we use co2? co2 is the built-in dataset that is in R, which shows the CO2 concentration in atmosphere, in parts per million(ppm). If you run '?co2' in R console, it will shows information of co2 dataset. 
+
+
+```{r, echo=FALSE}
+htmltools::img(src = knitr::image_uri("QMlogo.png"), 
+               alt = 'logo', 
+               style = 'position:absolute; top:0; right:0; padding:10px; width:30%;')
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<br>
+
+<center>
+![](ProphetLogo.png)
+</center>
+<br>
+---
+The Usage of Prophet in Our Analysation
+---
+<br>
+
+We use Prophet in this analysation because it is easy to use even for people without time series background to navigate! So don't forgot to install and use your 'prophet' package! 
+
+
+<br>
+---
+Plot of Carbon Emission in Atmosphere in par million(ppm)
+---
+<br>
+
+When you run the codes below, you will see a plot of Year(ds) and Carbon Emission in Atmosphere in par million(ppm)(y).
+
+<br>
+```{r}
+co2.df = data.frame(
+  ds=zoo::as.yearmon(time(co2)), 
+  y=co2)
+m = prophet::prophet(co2.df, weekly.seasonality = TRUE, daily.seasonality = TRUE)
+f = prophet::make_future_dataframe(m, periods=8, freq="quarter")
+p = predict(m, f)
+plot(m,p)
+```
+
+
+<br>
+---
+Regression 
+---
+<br>
+
+```{r}
+lm_model <- lm(y ~ ds, data = co2.df)
+plot(lm_model)
+
+```
+
+```{r eval =FALSE, include=TRUE}
+# Convert time column to date format
+co2$Date <- as.Date(co2$Date)
+
+# Extract year and month from the Date column
+co2$Year <- format(co2$Date, "%Y")
+co2$Month <- format(co2$Date, "%m")
+
+# Group data by year and calculate median CO2 concentration for each year
+co2_yearly <- co2 %>% 
+  group_by(Year) %>% 
+  summarise(median_CO2 = median(CO2))
+
+# Group data by month and calculate median CO2 concentration for each month
+co2_monthly <- co2 %>% 
+  group_by(Month) %>% 
+  summarise(median_CO2 = median(CO2))
+
+# Create box plot comparing CO2 concentrations across different years
+ggplot(co2_yearly, aes(x = Year, y = CO2)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of CO2 Concentrations by Year",
+       x = "Year",
+       y = "CO2 Concentration")
+
+# Create box plot comparing CO2 concentrations across different months
+ggplot(co2_monthly, aes(x = Month, y = CO2)) +
+  geom_boxplot() +
+  labs(title = "Box Plot of CO2 Concentrations by Month",
+       x = "Month",
+       y = "CO2 Concentration")
+
+```
+
+```{r eval =FALSE, include=TRUE}
+lim <- glm(m,p, family = gaussian)
+plot(lim)
+```
+
+```{r}
+m = prophet::prophet(co2.df, weekly.seasonality = TRUE, daily.seasonality = TRUE)
+f = prophet::make_future_dataframe(m, periods=300, freq="quarter")
+p = predict(m, f)
+plot(m,p)
+```
+```
+
+
+
+
+
+<br>
+<hr>
+<br>
+
+::: {.floatting}
+```{r echo=FALSE, out.extra='style="float:left; padding:20px"', out.width='20%'}
+knitr::include_graphics("MartinKingLutherJr.jpeg")
+```
+<br>
+<br>
+
+“For in the true nature of things, if we rightly consider, every green tree is far more glorious than if it were made of gold and silver.” —Martin Luther King Jr.
+####  *"For in the true nature of things, if we rightly consider, every green tree is far more glorious than if it were made of gold and silver."*
+<br>
+― [Martin Luther King Jr.](https://en.wikipedia.org/wiki/Martin_Luther_King_Jr.)
+:::
